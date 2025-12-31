@@ -54,3 +54,12 @@
  .selected .black-img {
      background: #000000;
  }
+
+ .in-check {
+    border: #a90000 solid 4px;
+    animation:  pulse 1s infinite alternate;
+}
+@keyframes pulse {
+  from {border: 4px solid #a90000;}
+  to {border: 6px solid #660000;}
+}

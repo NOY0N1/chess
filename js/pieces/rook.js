@@ -3,7 +3,7 @@ export default class Rook extends Piece{
         constructor(row, col, color){
             super("rook", row, col, color);
         }
-        canMove(row, col){
+        canMove(chessboard,row, col){
             if(row === this.row || col === this.col){
                 return true;
             }

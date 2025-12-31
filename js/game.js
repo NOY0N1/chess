@@ -154,8 +154,9 @@ function attachPieceListeners() {
           console.log("Selected piece:", piece.color, piece.type);
 
           
+          const myKing = piece.color === 'white' ? whiteKing : blackKing;
 
-          validMoves = piece.getValidMoves(chessboard);
+          validMoves = piece.getValidMoves(chessboard,myKing);
           for (const [row, col] of validMoves) {
             getSquare(row, col).classList.add(`${piece.color}-valid-moves`);
           }
@@ -205,6 +206,17 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
           });
   
           // Switch turns
+         const altKing = pieces.find(piece => piece.type === 'king' && piece.color !== currentPlayer);
+         const previousCheckSquare = document.querySelector('.in-check');
+            if (previousCheckSquare){
+                previousCheckSquare.classList.remove('in-check');
+            }
+
+          if (altKing.isInCheck(chessboard)) {
+            const kingSquare = getSquare(altKing.row, altKing.col);
+            kingSquare.classList.add('in-check');
+          }
+
           currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
           console.log(`Now it is ${currentPlayer}'s turn!`);
           changeTurn(); // Call changeTurn when the turn changes
@@ -213,6 +225,9 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
           selectedPiece = null;
         } else {
           console.log("Invalid move!");
+          document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
+            element.classList.remove(`${selectedPiece.color}-valid-moves`);
+          });
         }
       }
     });

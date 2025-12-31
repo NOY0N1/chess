@@ -7,13 +7,16 @@ export default class Piece  {
         this.captured = false;
 
     }
-    canMove(row, col) {
-        if (this.row === row && this.col === col) {
-            return false;
-        }       
-        return false;
-        
+
+    getValidMoves(chessboard,myKing){
+        throw new Error('getValidMoves method must be implemented by subclasses');
     }
+
+    canMove(chessboard,row, col) {
+        throw new Error('canMove method must be implemented by subclasses');
+        }       
+        
+    
     //moveTo is a function that takes in a row, column, and chessboard as arguments. It checks if the move is valid and if it is, it moves the piece to the new location.
     moveTo(row, col, chessboard){
         const validMoves =this.getValidMoves(chessboard);
@@ -33,4 +36,23 @@ export default class Piece  {
         return true;
     } 
 
+    wouldPutKingInCheck(chessboard,newRow,newCol,myKing){
+        const originalRow = this.row;
+        const originalCol = this.col;
+        const capturePiece = chessboard[newRow,newCol];
+
+        chessboard[this.row][this.col]=null;
+        chessboard[newRow][newCol]=this;
+        this.row=newRow;
+        this.col=newCol;
+
+        //check king in check
+        const kingInCheck=myKing.isInCheck(chessboard);
+
+        this.row=originalRow;
+        this.col=originalCol;
+        chessboard[originalRow][originalCol]=this;
+        chessboard[newRow][newCol]=capturePiece;
+        return kingInCheck
+    }
 }

@@ -4,7 +4,7 @@ export default class Pawn extends Piece{
             super("pawn", row, col, color);
         }
 
-        canMove(row, col){
+        canMove(chessboard,row, col){
             if(this.color === "white"){
                 if(this.row === 6 && this.col === col && row === 4){
                     return true;
