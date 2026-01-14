@@ -83,7 +83,7 @@ doesMovePutKingInCheck(chessboard, row, col) {
       const kingSideRook = chessboard[row][7];
       if (kingSideRook && kingSideRook.type === "rook" && kingSideRook.color === this.color &&
           !kingSideRook.hasMoved && chessboard[row][5] === null && chessboard[row][6] == null &&
-          !this.isSquareThreatened(chessboard,row, 5,) && !this.isSquareThreatened(row, 6, chessboard)) {
+                    !this.isSquareThreatened(chessboard, row, 5) && !this.isSquareThreatened(chessboard, row, 6)) {
         validMoves.push([row, 6]);
       }
 
@@ -92,7 +92,7 @@ doesMovePutKingInCheck(chessboard, row, col) {
       if (queenSideRook && queenSideRook.type === "rook" && queenSideRook.color === this.color && 
           !queenSideRook.hasMoved && chessboard[row][1] === null && chessboard[row][2] === null && 
           chessboard[row][3] === null && !this.isSquareThreatened(row, 2, chessboard) && 
-          !this.isSquareThreatened(row, 3, chessboard)) {
+                    !this.isSquareThreatened(chessboard, row, 2) && !this.isSquareThreatened(chessboard, row, 3)) {
         validMoves.push([row, 2]);
       }
     }

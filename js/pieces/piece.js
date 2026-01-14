@@ -18,8 +18,8 @@ export default class Piece  {
         
     
     //moveTo is a function that takes in a row, column, and chessboard as arguments. It checks if the move is valid and if it is, it moves the piece to the new location.
-    moveTo(row, col, chessboard){
-        const validMoves =this.getValidMoves(chessboard);
+    moveTo(row, col, chessboard, myKing){
+        const validMoves =this.getValidMoves(chessboard, myKing);
         if (!validMoves.some((validMoves) => validMoves[0] === row && validMoves[1] === col)){
             return false;
            
@@ -39,7 +39,7 @@ export default class Piece  {
     wouldPutKingInCheck(chessboard,newRow,newCol,myKing){
         const originalRow = this.row;
         const originalCol = this.col;
-        const capturePiece = chessboard[newRow,newCol];
+        const capturePiece = chessboard[newRow][newCol];
 
         chessboard[this.row][this.col]=null;
         chessboard[newRow][newCol]=this;

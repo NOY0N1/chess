@@ -135,7 +135,7 @@ function renderPiece(piece){
 pieces.forEach(renderPiece);
 
 let selectedPiece = null;
-let currentPlayer = 'white';
+let currentPlayer = Color.WHITE;
 let validMoves = [];
 
 function attachPieceListeners() {
@@ -197,32 +197,41 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
       // Check if the selected piece is moving to a new position
       if (selectedPiece.row !== row || selectedPiece.col !== col) {
         selectedPiece.element.parentElement.classList.remove("selected");
-        const moved = selectedPiece.moveTo(row, col, chessboard); // This function should validate and update piece position
+        const myKing = selectedPiece.color === 'white' ? whiteKing : blackKing;
+        const moved = selectedPiece.moveTo(row, col, chessboard, myKing); // This function should validate and update piece position
         if (moved) {
           console.log(`Moved to row ${row}, col ${col}`);
           renderPiece(selectedPiece);
           document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
             element.classList.remove(`${selectedPiece.color}-valid-moves`);
           });
-  
-          // Switch turns
-         const altKing = pieces.find(piece => piece.type === 'king' && piece.color !== currentPlayer);
-         const previousCheckSquare = document.querySelector('.in-check');
-            if (previousCheckSquare){
-                previousCheckSquare.classList.remove('in-check');
+
+          // Clear selection immediately to avoid allowing multiple moves if an error occurs
+          if (selectedPiece.element && selectedPiece.element.parentElement) {
+            selectedPiece.element.parentElement.classList.remove("selected");
+          }
+          selectedPiece = null;
+
+          // Update check indicator safely; don't let exceptions prevent turn switching
+          try {
+            const altKing = pieces.find(piece => piece.type === 'king' && piece.color !== currentPlayer);
+            const previousCheckSquare = document.querySelector('.in-check');
+            if (previousCheckSquare) {
+              previousCheckSquare.classList.remove('in-check');
             }
 
-          if (altKing.isInCheck(chessboard)) {
-            const kingSquare = getSquare(altKing.row, altKing.col);
-            kingSquare.classList.add('in-check');
+            if (altKing && typeof altKing.isInCheck === 'function' && altKing.isInCheck(chessboard)) {
+              const kingSquare = getSquare(altKing.row, altKing.col);
+              kingSquare.classList.add('in-check');
+            }
+          } catch (err) {
+            console.error('Error while checking king check state:', err);
           }
 
-          currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
+          // Switch turns (always attempt to switch even if check-check logic failed)
+          currentPlayer = currentPlayer === Color.WHITE ? Color.BLACK : Color.WHITE;
           console.log(`Now it is ${currentPlayer}'s turn!`);
-          changeTurn(); // Call changeTurn when the turn changes
-  
-          // Clear the selected piece after a successful move
-          selectedPiece = null;
+          updateTurnIndicator(); // Update the turn indicator
         } else {
           console.log("Invalid move!");
           document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
@@ -232,7 +241,6 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
       }
     });
   });
-let currentTurn = Color.WHITE;
 
 /**
  * Updates the turn indicator to reflect the current player's turn.
@@ -240,15 +248,9 @@ let currentTurn = Color.WHITE;
  * based on the current turn.
  */
 function updateTurnIndicator() {
-    turnIndicator.textContent = currentTurn === Color.WHITE ? 'White' : 'Black';
-    turnIndicator.style.backgroundColor = currentTurn === Color.WHITE ? 'white' : 'black';
-    turnIndicator.style.color = currentTurn === Color.WHITE ? 'black' : 'white';
-}
-
-// Call this function whenever the turn changes
-function changeTurn() {
-    currentTurn = currentTurn === Color.WHITE ? Color.BLACK : Color.WHITE;
-    updateTurnIndicator();
+    turnIndicator.textContent = currentPlayer === Color.WHITE ? 'White' : 'Black';
+    turnIndicator.style.backgroundColor = currentPlayer === Color.WHITE ? 'white' : 'black';
+    turnIndicator.style.color = currentPlayer === Color.WHITE ? 'black' : 'white';
 }
 
 // Initialize the turn indicator
