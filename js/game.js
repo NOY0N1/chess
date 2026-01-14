@@ -198,16 +198,16 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
       if (selectedPiece.row !== row || selectedPiece.col !== col) {
         selectedPiece.element.parentElement.classList.remove("selected");
         const myKing = selectedPiece.color === 'white' ? whiteKing : blackKing;
-        const moved = selectedPiece.moveTo(row, col, chessboard,myKing); // This function should validate and update piece position
+        const moved = selectedPiece.moveTo(row, col, chessboard, myKing); // This function should validate and update piece position
         if (moved) {
           console.log(`Moved to row ${row}, col ${col}`);
           renderPiece(selectedPiece);
           document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
             element.classList.remove(`${selectedPiece.color}-valid-moves`);
           });
-  
 
-if (selectedPiece.element && selectedPiece.element.parentElement) {
+          // Clear selection immediately to avoid allowing multiple moves if an error occurs
+          if (selectedPiece.element && selectedPiece.element.parentElement) {
             selectedPiece.element.parentElement.classList.remove("selected");
           }
           selectedPiece = null;
@@ -231,8 +231,7 @@ if (selectedPiece.element && selectedPiece.element.parentElement) {
           // Switch turns (always attempt to switch even if check-check logic failed)
           currentPlayer = currentPlayer === Color.WHITE ? Color.BLACK : Color.WHITE;
           console.log(`Now it is ${currentPlayer}'s turn!`);
-          updateTurnIndicator();
-
+          updateTurnIndicator(); // Update the turn indicator
         } else {
           console.log("Invalid move!");
           document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
@@ -253,8 +252,6 @@ function updateTurnIndicator() {
     turnIndicator.style.backgroundColor = currentPlayer === Color.WHITE ? 'white' : 'black';
     turnIndicator.style.color = currentPlayer === Color.WHITE ? 'black' : 'white';
 }
-
-
 
 // Initialize the turn indicator
 updateTurnIndicator();

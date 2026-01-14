@@ -45,12 +45,12 @@ export default class Bishop extends Piece{
     }
 
     // Check if path is clear using helper method
-    if (!this.isPathClear(chessboard, newRow, newCol)) {
+    if (!this.isPathClear(chessboard, row, col)) {
         console.log("Path blocked!");
         return false;
     }
 
-    const targetPiece = chessboard[newRow][newCol];
+    const targetPiece = chessboard[row][col];
     const result = targetPiece === null || targetPiece.color !== this.color;
     console.log(`Can move: ${result}`);
     return result;
