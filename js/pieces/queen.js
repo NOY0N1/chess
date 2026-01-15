@@ -5,13 +5,30 @@ export default class Queen extends Piece{
         }
 
         canMove(chessboard,row, col){
-            if(row === this.row || col === this.col){
-                return true;
+            // Check if move is geometrically valid (straight line or diagonal)
+            const isStraight = (row === this.row || col === this.col);
+            const isDiagonal = Math.abs(row - this.row) === Math.abs(col - this.col);
+
+            if (!isStraight && !isDiagonal) {
+                return false;
             }
-            if(Math.abs(row - this.row) === Math.abs(col - this.col)){
-                return true;
+
+            // Check if path is clear (no pieces blocking)
+            const rowDir = row > this.row ? 1 : row < this.row ? -1 : 0;
+            const colDir = col > this.col ? 1 : col < this.col ? -1 : 0;
+
+            let currentRow = this.row + rowDir;
+            let currentCol = this.col + colDir;
+
+            while (currentRow !== row || currentCol !== col) {
+                if (chessboard[currentRow][currentCol] !== null) {
+                    return false; // Path is blocked
+                }
+                currentRow += rowDir;
+                currentCol += colDir;
             }
-            return false;
+
+            return true; // Path is clear
 
         }
          

@@ -12,7 +12,7 @@ export default class Rook extends Piece{
         }
         
         
-        getValidMoves(chessboard){
+        getValidMoves(chessboard,myKing){
             let validMoves = []
             const directions = [[1, 0], [0, 1], [-1, 0], [0, -1]];
             //check the row
@@ -21,10 +21,12 @@ export default class Rook extends Piece{
                 let currentCol = this.col + c;
                 while(currentRow >= 0 && currentRow < 8 && currentCol >= 0 && currentCol < 8){
                     if(chessboard[currentRow][currentCol] === null){
-                        validMoves.push([currentRow, currentCol]);
+                        if (!this.wouldPutKingInCheck(chessboard,currentRow,currentCol,myKing)){
+                            validMoves.push([currentRow, currentCol]);}
                     }else{
                         if(chessboard[currentRow][currentCol].color !== this.color){
-                            validMoves.push([currentRow, currentCol]);
+                            if (!this.wouldPutKingInCheck(chessboard,currentRow,currentCol,myKing)){
+                            validMoves.push([currentRow, currentCol]);}
                         }
                         break;
                     }
