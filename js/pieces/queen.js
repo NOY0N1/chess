@@ -27,8 +27,9 @@ export default class Queen extends Piece{
                 currentRow += rowDir;
                 currentCol += colDir;
             }
-
-            return true; // Path is clear
+            
+            const targetPiece = chessboard[row][col];
+            return targetPiece === null || targetPiece.color !== this.color; // Path is clear
 
         }
          
