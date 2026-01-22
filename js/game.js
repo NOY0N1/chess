@@ -185,7 +185,7 @@ squares.forEach((sq, index) => {
 });*/
 
 Array.from(chessboardVisual.children).forEach((square, index) => {
-    square.addEventListener('click', () => {
+    square.addEventListener('click', async () => {
       if (!selectedPiece) {
         console.log("No piece selected.");
         return;
@@ -201,7 +201,34 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
         const moved = selectedPiece.moveTo(row, col, chessboard, myKing); // This function should validate and update piece position
         if (moved) {
           console.log(`Moved to row ${row}, col ${col}`);
+          if (selectedPiece.type === 'pawn' && (row === 0 || row === 7)) {
+            const chosenPiece = await showPromotionDialog(selectedPiece.color);
+            let newPiece;
+            switch (chosenPiece) {
+              case 'queen':
+                newPiece = new Queen(row, col, selectedPiece.color);
+                break;
+              case 'rook':
+                newPiece = new Rook(row, col, selectedPiece.color);
+                break;
+              case 'bishop':
+                newPiece = new Bishop(row, col, selectedPiece.color);
+                break;
+              case 'knight':
+                newPiece = new Knight(row, col, selectedPiece.color);
+                break;
+            }
+            pieces.splice(pieces.indexOf(selectedPiece), 1);
+            pieces.push(newPiece);
+            chessboard[row][col] = newPiece;
+
+            if (selectedPiece.element && selectedPiece.element.parentNode) {
+              selectedPiece.element.parentNode.removeChild(selectedPiece.element);
+            }
+            selectedPiece = newPiece;
+          }
           renderPiece(selectedPiece);
+          attachPieceListeners(); // Reattach listeners to include any new pieces
           document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
             element.classList.remove(`${selectedPiece.color}-valid-moves`);
           });
@@ -257,3 +284,33 @@ function updateTurnIndicator() {
 updateTurnIndicator();
 
 attachPieceListeners();
+
+// Pawn promotion
+function showPromotionDialog(color){
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('promotion-overlay');
+    const dialog = document.getElementById('promotion-dialog');
+    
+    const capColor = color.charAt(0).toUpperCase() + color.slice(1);
+    document.getElementById('promo-rook-img').src = `art/${color}Rook.svg`;
+    document.getElementById('promo-knight-img').src = `art/${color}Knight.svg`;
+    document.getElementById('promo-bishop-img').src = `art/${color}Bishop.svg`;
+    document.getElementById('promo-queen-img').src = `art/${color}Queen.svg`;
+
+    // Show the dialog
+    overlay.classList.add("show");
+    dialog.classList.add("show");
+
+    //clikcked
+    const pieces = document.querySelectorAll(".promotion-piece");
+    pieces.forEach((piece) => {
+      piece.onclick = () => {
+        const chosenPiece = piece.dataset.piece;
+        overlay.classList.remove("show");
+        dialog.classList.remove("show");
+        pieces.forEach(p=> p.onclick = null);
+        resolve(chosenPiece);
+      };
+    });
+  });
+}

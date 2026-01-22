@@ -4,6 +4,10 @@ export default class Pawn extends Piece{
             super("pawn", row, col, color);
         }
 
+        canPromote(row){
+            return (this.color === "white" && row === 0) || (this.color === "black" && row === 7);
+        }
+
         canMove(chessboard,row, col){
             // const dir = this.color === "white" ? -1 : 1;
             // const starRow = this.color === "white" ? 6 : 1;
