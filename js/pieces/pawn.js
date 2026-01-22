@@ -5,26 +5,28 @@ export default class Pawn extends Piece{
         }
 
         canMove(chessboard,row, col){
+            // const dir = this.color === "white" ? -1 : 1;
+            // const starRow = this.color === "white" ? 6 : 1;
             if(this.color === "white"){
                 if(this.row === 6 && this.col === col && row === 4){
-                    return true;
+                    return chessboard[row][col]===null && chessboard[5][col]===null;
                 }
                 if(this.row - row === 1 && this.col === col){
-                    return true;
+                    return chessboard[row][col]===null;
                 }
                 if(this.row - row === 1 && Math.abs(this.col - col) === 1){
-                    return true;
+                    return chessboard[row][col]!==null && chessboard[row][col].color !== this.color;
                 }
                 return false;
             }else{
                 if(this.row === 1 && this.col === col && row === 3){
-                    return true;
+                    return chessboard[row][col]===null && chessboard[2][col]===null;
                 }
                 if(row - this.row === 1 && this.col === col){
-                    return true;
+                    return chessboard[row][col]===null;
                 }
                 if(row - this.row === 1 && Math.abs(this.col - col) === 1){
-                    return true;
+                    return chessboard[row][col]!==null && chessboard[row][col].color !== this.color;
                 }
                 return false;
             }
