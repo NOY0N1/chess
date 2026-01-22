@@ -4,11 +4,24 @@ export default class Rook extends Piece{
             super("rook", row, col, color);
         }
         canMove(chessboard,row, col){
-            if(row === this.row || col === this.col){
-                return true;
+            if(row !== this.row && col !== this.col){
+                return false;
             }
-            return false;
+            const rowDir = row > this.row ? 1 : (row < this.row ? -1 : 0);
+            const colDir = col > this.col ? 1 : (col < this.col ? -1 : 0);
 
+
+            let currentRow = this.row + rowDir;
+            let currentCol = this.col + colDir;
+            while(currentRow !== row || currentCol !== col){
+                if(chessboard[currentRow][currentCol] !== null){
+                    return false; //path is blocked
+                }
+                currentRow += rowDir;
+                currentCol += colDir;
+            }
+            const targetPiece = chessboard[row][col];
+            return targetPiece === null || targetPiece.color !== this.color;
         }
         
         
