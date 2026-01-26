@@ -49,6 +49,10 @@ function getSquare(row, col){
 //pieces
 const pieces = [];
 
+//captured pieces
+const capturedWhitePieces = [];
+const capturedBlackPieces = [];
+
 //rooks
 const lWhiteRook = new Rook (7, 0,Color.WHITE);
 const rWhiteRook = new Rook (7, 7,Color.WHITE);
@@ -198,9 +202,25 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
       if (selectedPiece.row !== row || selectedPiece.col !== col) {
         selectedPiece.element.parentElement.classList.remove("selected");
         const myKing = selectedPiece.color === 'white' ? whiteKing : blackKing;
-        const moved = selectedPiece.moveTo(row, col, chessboard, myKing); // This function should validate and update piece position
-        if (moved) {
+        const moveResult = selectedPiece.moveTo(row, col, chessboard, myKing); // This function should validate and update piece position
+        if (moveResult && moveResult.success) {
           console.log(`Moved to row ${row}, col ${col}`);
+
+          // Track captured pieces
+          if (moveResult.capturedPiece) {
+            if (moveResult.capturedPiece.color === Color.WHITE) {
+              capturedWhitePieces.push(moveResult.capturedPiece);
+            } else {
+              capturedBlackPieces.push(moveResult.capturedPiece);
+            }
+            // Remove captured piece from pieces array
+            const capturedIndex = pieces.indexOf(moveResult.capturedPiece);
+            if (capturedIndex !== -1) {
+              pieces.splice(capturedIndex, 1);
+            }
+            displayCapturedPieces();
+          }
+
           if (selectedPiece.type === 'pawn' && (row === 0 || row === 7)) {
             const chosenPiece = await showPromotionDialog(selectedPiece.color);
             let newPiece;
@@ -285,12 +305,42 @@ updateTurnIndicator();
 
 attachPieceListeners();
 
+// Display captured pieces
+function displayCapturedPieces() {
+  const whiteCapturedContainer = document.getElementById('captured-white-pieces');
+  const blackCapturedContainer = document.getElementById('captured-black-pieces');
+
+  // Clear containers
+  whiteCapturedContainer.innerHTML = '';
+  blackCapturedContainer.innerHTML = '';
+
+  // Display white's captured pieces (pieces that white captured from black)
+  capturedBlackPieces.forEach(piece => {
+    const img = document.createElement('img');
+    const pieceName = piece.type.charAt(0).toUpperCase() + piece.type.slice(1);
+    img.src = `art/${piece.color}${pieceName}.svg`;
+    img.alt = `${piece.color} ${piece.type}`;
+    img.classList.add('captured-piece-img');
+    whiteCapturedContainer.appendChild(img);
+  });
+
+  // Display black's captured pieces (pieces that black captured from white)
+  capturedWhitePieces.forEach(piece => {
+    const img = document.createElement('img');
+    const pieceName = piece.type.charAt(0).toUpperCase() + piece.type.slice(1);
+    img.src = `art/${piece.color}${pieceName}.svg`;
+    img.alt = `${piece.color} ${piece.type}`;
+    img.classList.add('captured-piece-img');
+    blackCapturedContainer.appendChild(img);
+  });
+}
+
 // Pawn promotion
 function showPromotionDialog(color){
   return new Promise((resolve) => {
     const overlay = document.getElementById('promotion-overlay');
     const dialog = document.getElementById('promotion-dialog');
-    
+
     const capColor = color.charAt(0).toUpperCase() + color.slice(1);
     document.getElementById('promo-rook-img').src = `art/${color}Rook.svg`;
     document.getElementById('promo-knight-img').src = `art/${color}Knight.svg`;

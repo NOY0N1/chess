@@ -16,19 +16,26 @@ isSquareThreatened(chessboard, row, col) {
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const piece = chessboard[r][c];
-              
+
             if (piece !== null && piece.color !== this.color) {
-                 console.log(`Checking piece at (${r}, ${c}): ${piece.type}`); 
-                    if (piece.type === "king") {
-                        const dr = Math.abs(piece.row - row);
-                        const dc = Math.abs(piece.col - col);
-                        if (dr <= 1 && dc <= 1) 
-                            return true; 
-                        // Skip checking the king itself
-                        continue;
+                if (piece.type === "king") {
+                    const dr = Math.abs(piece.row - row);
+                    const dc = Math.abs(piece.col - col);
+                    if (dr <= 1 && dc <= 1)
+                        return true;
+                    // Skip checking the king itself
+                    continue;
+                }
+                // Use isAttacking for pawns to only check diagonal captures
+                if (piece.type === "pawn") {
+                    if (piece.isAttacking && piece.isAttacking(chessboard, row, col)) {
+                        return true;
                     }
-                console.log(`does piece exist ${piece.type}`);
-                if (piece.canMove(chessboard,row,col)){return true;} 
+                } else {
+                    if (piece.canMove(chessboard, row, col)) {
+                        return true;
+                    }
+                }
             }
         }
     }

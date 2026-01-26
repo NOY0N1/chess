@@ -22,18 +22,20 @@ export default class Piece  {
         const validMoves =this.getValidMoves(chessboard, myKing);
         if (!validMoves.some((validMoves) => validMoves[0] === row && validMoves[1] === col)){
             return false;
-           
+
         }
+        let capturedPiece = null;
         if (chessboard[row][col] !== null && chessboard[row][col].color !== this.color){
-            chessboard[row][col].captured = true;
+            capturedPiece = chessboard[row][col];
+            capturedPiece.captured = true;
         }
-    
-    
+
+
         chessboard[this.row][this.col] = null;
         this.row = row;
         this.col = col;
         chessboard[this.row][this.col] = this;
-        return true;
+        return { success: true, capturedPiece: capturedPiece };
     } 
 
     wouldPutKingInCheck(chessboard,newRow,newCol,myKing){
