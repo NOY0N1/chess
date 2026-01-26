@@ -8,6 +8,15 @@ export default class Pawn extends Piece{
             return (this.color === "white" && row === 0) || (this.color === "black" && row === 7);
         }
 
+        isAttacking(chessboard, row, col){
+            // Only check diagonal captures for threat detection
+            if(this.color === "white"){
+                return this.row - row === 1 && Math.abs(this.col - col) === 1;
+            }else{
+                return row - this.row === 1 && Math.abs(this.col - col) === 1;
+            }
+        }
+
         canMove(chessboard,row, col){
             // const dir = this.color === "white" ? -1 : 1;
             // const starRow = this.color === "white" ? 6 : 1;
