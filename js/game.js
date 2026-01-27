@@ -105,33 +105,32 @@ for (let i = 0; i < 8; i++) {
 
 //function to render the piece
 function renderPiece(piece){
-//kill the child
+    // Remove the piece from its current square if it exists
     if (piece.element && piece.element.parentNode){
         piece.element.parentNode.removeChild(piece.element);
     }
-    //checking existence
+
+    // Create element if it doesn't exist
     if (!piece.element) {
-
-      chessboard[piece.row][piece.col] = piece;
-
-
         piece.element = document.createElement('img');
         const PieceName = piece.type.charAt(0).toUpperCase()+piece.type.slice(1);
-
-
         piece.element.src = "art/"+piece.color+PieceName+".svg";
         piece.element.alt = piece.color+PieceName;
         piece.element.classList.add(PieceName+'-img', piece.color+'-img');
     }
 
-    
+    // Update the chessboard reference
+    chessboard[piece.row][piece.col] = piece;
+
+    // Get the target square and clear any opponent pieces
     const targetSquare = getSquare(piece.row, piece.col);
     const opponentColor = piece.color === Color.WHITE ? Color.BLACK : Color.WHITE;
     const capturedPiece = targetSquare.querySelector(`.${opponentColor}-img`);
     if (capturedPiece) {
         targetSquare.removeChild(capturedPiece);
-      }
+    }
 
+    // Add the piece to its new square
     targetSquare.appendChild(piece.element);
 };
 
@@ -247,7 +246,13 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
             }
             selectedPiece = newPiece;
           }
-          renderPiece(selectedPiece);
+
+          // If king moved, re-render all pieces (for castling)
+          if (selectedPiece.type === 'king') {
+            pieces.forEach(p => renderPiece(p));
+          } else {
+            renderPiece(selectedPiece);
+          }
           attachPieceListeners(); // Reattach listeners to include any new pieces
           document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
             element.classList.remove(`${selectedPiece.color}-valid-moves`);

@@ -65,30 +65,42 @@ doesMovePutKingInCheck(chessboard, row, col) {
 
     moveTo(row, col, chessboard, myKing) {
         const startCol = this.col;
+        const startRow = this.row;
+        console.log('King moving from [' + startRow + ',' + startCol + '] to [' + row + ',' + col + ']');
+
         const moveResult = super.moveTo(row, col, chessboard, myKing);
 
         // Handle castling - move the rook
         if (moveResult && moveResult.success) {
+            console.log('King move successful, checking for castling...');
+            console.log('startCol:', startCol, 'col:', col, 'startRow:', startRow, 'row:', row);
+
             // King-side castling (king moves 2 squares to the right)
-            if (startCol === 4 && col === 6) {
+            if (startCol === 4 && col === 6 && startRow === row) {
+                console.log('Attempting king-side castling...');
                 const rook = chessboard[row][7];
+                console.log('Rook at [' + row + ',7]:', rook);
                 if (rook && rook.type === 'rook') {
                     chessboard[row][7] = null;
                     rook.row = row;
                     rook.col = 5;
                     chessboard[row][5] = rook;
                     rook.hasMoved = true;
+                    console.log('King-side castling: Moved rook from [' + row + ',7] to [' + row + ',5]');
                 }
             }
             // Queen-side castling (king moves 2 squares to the left)
-            else if (startCol === 4 && col === 2) {
+            else if (startCol === 4 && col === 2 && startRow === row) {
+                console.log('Attempting queen-side castling...');
                 const rook = chessboard[row][0];
+                console.log('Rook at [' + row + ',0]:', rook);
                 if (rook && rook.type === 'rook') {
                     chessboard[row][0] = null;
                     rook.row = row;
                     rook.col = 3;
                     chessboard[row][3] = rook;
                     rook.hasMoved = true;
+                    console.log('Queen-side castling: Moved rook from [' + row + ',0] to [' + row + ',3]');
                 }
             }
         }
