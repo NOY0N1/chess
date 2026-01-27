@@ -35,6 +35,12 @@ export default class Piece  {
         this.row = row;
         this.col = col;
         chessboard[this.row][this.col] = this;
+
+        // Track if piece has moved (for castling)
+        if (this.hasOwnProperty('hasMoved')) {
+            this.hasMoved = true;
+        }
+
         return { success: true, capturedPiece: capturedPiece };
     } 
 

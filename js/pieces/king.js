@@ -63,6 +63,39 @@ doesMovePutKingInCheck(chessboard, row, col) {
         return this.getValidMoves(chessboard, this).some(([r, c]) => r === row && c === col);
     }
 
+    moveTo(row, col, chessboard, myKing) {
+        const startCol = this.col;
+        const moveResult = super.moveTo(row, col, chessboard, myKing);
+
+        // Handle castling - move the rook
+        if (moveResult && moveResult.success) {
+            // King-side castling (king moves 2 squares to the right)
+            if (startCol === 4 && col === 6) {
+                const rook = chessboard[row][7];
+                if (rook && rook.type === 'rook') {
+                    chessboard[row][7] = null;
+                    rook.row = row;
+                    rook.col = 5;
+                    chessboard[row][5] = rook;
+                    rook.hasMoved = true;
+                }
+            }
+            // Queen-side castling (king moves 2 squares to the left)
+            else if (startCol === 4 && col === 2) {
+                const rook = chessboard[row][0];
+                if (rook && rook.type === 'rook') {
+                    chessboard[row][0] = null;
+                    rook.row = row;
+                    rook.col = 3;
+                    chessboard[row][3] = rook;
+                    rook.hasMoved = true;
+                }
+            }
+        }
+
+        return moveResult;
+    }
+
     getValidMoves(chessboard){
         const validMoves = [];
         const moves = [
@@ -96,9 +129,9 @@ doesMovePutKingInCheck(chessboard, row, col) {
 
       // Queen-side castling
       const queenSideRook = chessboard[row][0];
-      if (queenSideRook && queenSideRook.type === "rook" && queenSideRook.color === this.color && 
-          !queenSideRook.hasMoved && chessboard[row][1] === null && chessboard[row][2] === null && 
-          chessboard[row][3] === null && !this.isSquareThreatened(row, 2, chessboard) && 
+      if (queenSideRook && queenSideRook.type === "rook" && queenSideRook.color === this.color &&
+          !queenSideRook.hasMoved && chessboard[row][1] === null && chessboard[row][2] === null &&
+          chessboard[row][3] === null && !this.isSquareThreatened(chessboard, row, 1) &&
                     !this.isSquareThreatened(chessboard, row, 2) && !this.isSquareThreatened(chessboard, row, 3)) {
         validMoves.push([row, 2]);
       }
