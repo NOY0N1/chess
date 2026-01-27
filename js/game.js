@@ -1,7 +1,7 @@
 import Rook from "./pieces/rook.js";
 import Knight from "./pieces/knight.js";
 import Bishop from "./pieces/bishop.js";
-import Queen from "./pieces/Queen.js";
+import Queen from "./pieces/queen.js";
 import King from "./pieces/king.js";
 import Pawn from "./pieces/pawn.js";
 import Piece from "./pieces/piece.js";
@@ -202,7 +202,7 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
       if (selectedPiece.row !== row || selectedPiece.col !== col) {
         selectedPiece.element.parentElement.classList.remove("selected");
         const myKing = selectedPiece.color === 'white' ? whiteKing : blackKing;
-        const moveResult = selectedPiece.moveTo(row, col, chessboard, myKing); // This function should validate and update piece position
+        const moveResult = selectedPiece.moveTo(row, col, chessboard, myKing); // ThisFunctionShouldValidateAndUpdatePiecePosition
         if (moveResult && moveResult.success) {
           console.log(`Moved to row ${row}, col ${col}`);
 
@@ -260,6 +260,7 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
           selectedPiece = null;
 
           // Update check indicator safely; don't let exceptions prevent turn switching
+          let gameOverMsg = '';
           try {
             const altKing = pieces.find(piece => piece.type === 'king' && piece.color !== currentPlayer);
             const previousCheckSquare = document.querySelector('.in-check');
@@ -269,8 +270,24 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
 
             if (altKing && typeof altKing.isInCheck === 'function' && altKing.isInCheck(chessboard)) {
               const kingSquare = getSquare(altKing.row, altKing.col);
-              kingSquare.classList.add('in-check');
-            }
+              const opponentColor = altKing.color;
+              const hasAnyValidMoves = pieces.filter(p => p.color === opponentColor && !p.captured).some(p => p.getValidMoves(chessboard, altKing).length > 0);
+              if (!hasAnyValidMoves) {
+                console.log(`${altKing.color.toUpperCase()} is in CHECKMATE!`);
+                kingSquare.classList.add('in-checkmate');
+                gameOverMsg = `is in CHECKMATE! Game Over.`;//${altKing.color.charAt(0).toUpperCase() + altKing.color.slice(1)}
+                console.log(gameOverMsg);
+              }
+              else {
+                kingSquare.classList.add('in-check');
+              }} else if (altKing) {
+                const opponentColor = altKing.color;
+                const hasAnyValidMoves = pieces.filter(p => p.color === opponentColor && !p.captured).some(p => p.getValidMoves(chessboard, altKing).length > 0);
+                if (!hasAnyValidMoves) {
+                  console.log('stalemate.');
+                  gameOverMsg = `Stalemate! It's a draw.`;
+                }
+              }
           } catch (err) {
             console.error('Error while checking king check state:', err);
           }
@@ -278,7 +295,7 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
           // Switch turns (always attempt to switch even if check-check logic failed)
           currentPlayer = currentPlayer === Color.WHITE ? Color.BLACK : Color.WHITE;
           console.log(`Now it is ${currentPlayer}'s turn!`);
-          updateTurnIndicator(); // Update the turn indicator
+          updateTurnIndicator(gameOverMsg); // Update the turn indicator
         } else {
           console.log("Invalid move!");
           document.querySelectorAll(`.${selectedPiece.color}-valid-moves`).forEach((element) => {
@@ -294,10 +311,15 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
  * Changes the text content and the background and text colors of the turn indicator
  * based on the current turn.
  */
-function updateTurnIndicator() {
-    turnIndicator.textContent = currentPlayer === Color.WHITE ? 'White' : 'Black';
+function updateTurnIndicator(gameOverMsg = '') {
+    let displayText = currentPlayer === Color.WHITE ? 'White' : 'Black';
+    if (gameOverMsg) {
+      displayText += ` ${gameOverMsg}`;
+    };
+    turnIndicator.textContent = displayText;
     turnIndicator.style.backgroundColor = currentPlayer === Color.WHITE ? 'white' : 'black';
     turnIndicator.style.color = currentPlayer === Color.WHITE ? 'black' : 'white';
+
 }
 
 // Initialize the turn indicator

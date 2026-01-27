@@ -13,7 +13,7 @@ export default class Pawn extends Piece{
                 return this.row - row === 1 && Math.abs(this.col - col) === 1;
             }
             else{
-                return row - this.row === 1 && Math.abs( this.col - 1) === 1;
+                return row - this.row === 1 && Math.abs( this.col - col) === 1;
             }
         }
 
