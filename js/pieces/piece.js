@@ -18,8 +18,8 @@ export default class Piece  {
         
     
     //moveTo is a function that takes in a row, column, and chessboard as arguments. It checks if the move is valid and if it is, it moves the piece to the new location.
-    moveTo(row, col, chessboard, myKing){
-        const validMoves =this.getValidMoves(chessboard, myKing);
+    moveTo(row, col, chessboard, myKing, lastMove = null){
+        const validMoves = this.type === 'pawn' ? this.getValidMoves(chessboard, myKing, lastMove) : this.getValidMoves(chessboard, myKing);
         if (!validMoves.some((validMoves) => validMoves[0] === row && validMoves[1] === col)){
             return false;
 
@@ -30,6 +30,20 @@ export default class Piece  {
             capturedPiece.captured = true;
         }
 
+        // Handle en passant capture
+        if (this.type === 'pawn' && lastMove && lastMove.piece.type === 'pawn') {
+            // Check if this is an en passant capture (diagonal move to empty square)
+            if (chessboard[row][col] === null && this.col !== col) {
+                // Capture the pawn that's beside us
+                const capturedPawnRow = this.row;
+                const capturedPawnCol = col;
+                capturedPiece = chessboard[capturedPawnRow][capturedPawnCol];
+                if (capturedPiece) {
+                    capturedPiece.captured = true;
+                    chessboard[capturedPawnRow][capturedPawnCol] = null;
+                }
+            }
+        }
 
         chessboard[this.row][this.col] = null;
         this.row = row;

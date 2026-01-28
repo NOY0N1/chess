@@ -53,6 +53,9 @@ const pieces = [];
 const capturedWhitePieces = [];
 const capturedBlackPieces = [];
 
+//last move tracking (for en passant)
+let lastMove = null;
+
 //rooks
 const lWhiteRook = new Rook (7, 0,Color.WHITE);
 const rWhiteRook = new Rook (7, 7,Color.WHITE);
@@ -159,7 +162,7 @@ function attachPieceListeners() {
           
           const myKing = piece.color === 'white' ? whiteKing : blackKing;
 
-          validMoves = piece.getValidMoves(chessboard,myKing);
+          validMoves = piece.type === 'pawn' ? piece.getValidMoves(chessboard, myKing, lastMove) : piece.getValidMoves(chessboard, myKing);
           for (const [row, col] of validMoves) {
             getSquare(row, col).classList.add(`${piece.color}-valid-moves`);
           }
@@ -201,9 +204,20 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
       if (selectedPiece.row !== row || selectedPiece.col !== col) {
         selectedPiece.element.parentElement.classList.remove("selected");
         const myKing = selectedPiece.color === 'white' ? whiteKing : blackKing;
-        const moveResult = selectedPiece.moveTo(row, col, chessboard, myKing); // ThisFunctionShouldValidateAndUpdatePiecePosition
+        const fromRow = selectedPiece.row;
+        const fromCol = selectedPiece.col;
+        const moveResult = selectedPiece.moveTo(row, col, chessboard, myKing, lastMove); // ThisFunctionShouldValidateAndUpdatePiecePosition
         if (moveResult && moveResult.success) {
           console.log(`Moved to row ${row}, col ${col}`);
+
+          // Track last move for en passant
+          lastMove = {
+            piece: selectedPiece,
+            fromRow: fromRow,
+            fromCol: fromCol,
+            toRow: row,
+            toCol: col
+          };
 
           // Track captured pieces
           if (moveResult.capturedPiece) {
@@ -211,6 +225,10 @@ Array.from(chessboardVisual.children).forEach((square, index) => {
               capturedWhitePieces.push(moveResult.capturedPiece);
             } else {
               capturedBlackPieces.push(moveResult.capturedPiece);
+            }
+            // Remove captured piece's visual element from the board
+            if (moveResult.capturedPiece.element && moveResult.capturedPiece.element.parentNode) {
+              moveResult.capturedPiece.element.parentNode.removeChild(moveResult.capturedPiece.element);
             }
             // Remove captured piece from pieces array
             const capturedIndex = pieces.indexOf(moveResult.capturedPiece);

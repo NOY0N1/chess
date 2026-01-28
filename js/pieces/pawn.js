@@ -45,7 +45,7 @@ export default class Pawn extends Piece{
             }
         }
        
-        getValidMoves(chessboard, myKing){
+        getValidMoves(chessboard, myKing, lastMove = null){
             let validMoves = [];
             const direction = this.color === "white" ? -1 : 1;
             const forward = this.row + direction;
@@ -75,6 +75,23 @@ export default class Pawn extends Piece{
                     }
                 }
             }
+
+            // En passant
+            if (lastMove && lastMove.piece.type === 'pawn') {
+                const lastPawn = lastMove.piece;
+                // Check if last move was a 2-square pawn advance
+                if (Math.abs(lastMove.toRow - lastMove.fromRow) === 2) {
+                    // Check if our pawn is on the same row and adjacent column
+                    if (this.row === lastPawn.row && Math.abs(this.col - lastPawn.col) === 1) {
+                        const captureRow = this.row + direction;
+                        const captureCol = lastPawn.col;
+                        if (!this.wouldPutKingInCheck(chessboard, captureRow, captureCol, myKing)){
+                            validMoves.push([captureRow, captureCol]);
+                        }
+                    }
+                }
+            }
+
             return validMoves;
         }
 }

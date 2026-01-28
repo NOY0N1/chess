@@ -63,12 +63,12 @@ doesMovePutKingInCheck(chessboard, row, col) {
         return this.getValidMoves(chessboard, this).some(([r, c]) => r === row && c === col);
     }
 
-    moveTo(row, col, chessboard, myKing) {
+    moveTo(row, col, chessboard, myKing, lastMove = null) {
         const startCol = this.col;
         const startRow = this.row;
         console.log('King moving from [' + startRow + ',' + startCol + '] to [' + row + ',' + col + ']');
 
-        const moveResult = super.moveTo(row, col, chessboard, myKing);
+        const moveResult = super.moveTo(row, col, chessboard, myKing, lastMove);
 
         // Handle castling - move the rook
         if (moveResult && moveResult.success) {
